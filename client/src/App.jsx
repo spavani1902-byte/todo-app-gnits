@@ -10,6 +10,8 @@ function App() {
   const [filter, setFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const tasksPerPage = 5;
 
   // Shows an error in the banner (and logs it in the console)
   function showError(err) {
@@ -90,6 +92,14 @@ function App() {
 
   // Only the todos that match the selected filter
   const filteredTodos = todos.filter(FILTERS[filter].test);
+  const totalPages = Math.ceil(filteredTodos.length / tasksPerPage);
+
+  const startIndex = (currentPage - 1) * tasksPerPage;
+
+  const currentTodos = filteredTodos.slice(
+    startIndex,
+    startIndex + tasksPerPage
+  );
 
   // "1 task" or "3 tasks"
   const taskWord = filteredTodos.length === 1 ? "task" : "tasks";
@@ -115,16 +125,40 @@ function App() {
     }
 
     return (
-      <ul className="todo-list">
-        {filteredTodos.map((todo) => (
-          <TodoItem
-            key={todo._id}
-            todo={todo}
-            onUpdate={handleUpdate}
-            onDelete={handleDelete}
-          />
-        ))}
-      </ul>
+      <>
+        <ul className="todo-list">
+          {currentTodos.map((todo) => (
+            <TodoItem
+              key={todo._id}
+              todo={todo}
+              onUpdate={handleUpdate}
+              onDelete={handleDelete}
+            />
+          ))}
+        </ul>
+
+        <div className="pagination">
+          <button
+            className="page-btn"
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(currentPage - 1)}
+          >
+            ← Previous
+          </button>
+
+          <span className="page-info">
+            Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
+          </span>
+
+          <button
+            className="page-btn"
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(currentPage + 1)}
+          >
+            Next →
+          </button>
+        </div>
+      </>
     );
   }
 
